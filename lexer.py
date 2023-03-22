@@ -20,7 +20,8 @@ t_ARROW = r'->'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
-t_CONJUGATE = r'est le conjoint de'
+# t_CONJUGATE = r'est le conjoint de'
+t_CONJUGATE=r'- CONJOINT ->'
 
 # Ignorer les espaces et les tabulations
 t_ignore = ' \t'
