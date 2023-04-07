@@ -1,0 +1,7 @@
+family_tree {
+AntoineBREESE(29/05/2001-);
+PierreBREESE(20/12/1958-);
+GenevieveBREESE(26/05/1959-);
+PierreBREESE <=> GenevieveBREESE;
+PierreBREESE -> AntoineBREESE;
+}

@@ -1,6 +1,0 @@
-AntoineBREESE(29/05/2001-29/05/2101)
-PierreBREESE(20/12/1958-20/12/2058)
-GenevieveBREESE(26/05/1959-26/05/2059)
-PierreBREESE <=> GenevieveBREESE
-père : PierreBREESE -> AntoineBREESE
-mère : GenevieveBREESE -> AntoineBREESE
