@@ -1,0 +1,7 @@
+family_tree {
+    John(01/01/1940-15/06/2005);
+    Mary(10/04/1945-);
+    Susan(20/02/1965-);
+    John->Mary;
+    John<=>Susan;
+}

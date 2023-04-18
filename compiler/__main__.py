@@ -4,15 +4,21 @@ import sys
 
 from lexer import Lexer
 from p4rser import Parser
+import p4rser
 
 if __name__ == "__main__":
     lexer = Lexer()
-    filename = "../examples/test.txt"
+    filename = "../examples/test_antoine.txt"
     with open(filename) as file:
         content = file.readlines()
 
     Lexems = lexer.lex(content)
     print(Lexems)
     p4rser = Parser(Lexems)
-    p4rser.parse()
+
+    ftree = p4rser.parse()
+    #print_frise(ftree)
+
+
+
 
