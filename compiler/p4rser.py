@@ -123,7 +123,11 @@ class Parser:
         self.expect("R_PAREN")
         self.expect("TERMINATOR")
         # On crée l'objet Person
-        Person(tree, name, bdate, ddate)
+        # Si c'est la première personne de l'arbre, on la définit comme racine
+        if tree.racine is None:
+            tree.racine = Person(tree, name, bdate, ddate)
+        else:
+            Person(tree, name, bdate, ddate)
 
     def parse_familial_link(self, tree):
         """
@@ -181,6 +185,7 @@ class Person:
         self.wedding_date = None
         self.parents = []
         self.children = []
+        self.gen = None
         f_tree.persons.append(self)
 
     def __str__(self):
@@ -196,10 +201,28 @@ class Person:
         return desc
 
     def get_parents_name(self):
+        """
+        Retourne le nom des parents ordonnés par ordre alphabétique
+        :return:
+        """
         if len(self.parents) >= 2:
-            return [self.parents[0].name, self.parents[1].name]
+            if self.parents[0].name < self.parents[1].name:
+                return [self.parents[0].name, self.parents[1].name]
+            else:
+                return [self.parents[1].name, self.parents[0].name]
         else:
             return [self.parents[0].name]
+
+
+    def get_couple_names(self):
+        """
+        Retourne le nom des mariés du couple ordonnés par ordre alphabétique
+        :return:
+        """
+        if self.name < self.spouse.name:
+            return str(self.name + self.spouse.name)
+        else:
+            return str(self.spouse.name + self.name)
 
     def define_mariage_link(self, spouse, wdate):
         self.spouse = spouse
@@ -223,6 +246,7 @@ class Person:
 class FamilyTree:
     def __init__(self):
         self.persons = []
+        self.racine = None
 
     def get_person(self, name):
         for person in self.persons:
@@ -266,6 +290,7 @@ class FamilyTree:
         # Affichage de la frise
 
         print("###############################\n##### Frise chronologique #####\n###############################\n")
+        print(f"Arbre généalogique de {self.racine.name}.\n")
 
         # liste contenant les décades déjà affichées
         decades = []
@@ -289,7 +314,7 @@ class FamilyTree:
             for event in events[date][1:]:
                 print(f"------------ {event}")
 
-    def print_tree(self):
+    def print_old_tree(self):
         """
         Affiche l'arbre généalogique sous la forme d'un graphique
         :return:
@@ -340,6 +365,153 @@ class FamilyTree:
 
         # Afficher le graphique
         graph.render('tree', view=True)
+
+    def get_dict_gen(self):
+        """
+        Retourne un dictionnaire génération : liste des personnes
+        :return:
+        """
+
+        # on boucle sur toutes les personnes et on constitue le dictionnaire
+        dict_gen = {}
+        for person in self.persons:
+            # Si la génération a déjà été ajoutée
+            if person.gen in dict_gen.keys():
+                dict_gen[person.gen].append(person)
+            else:
+                dict_gen[person.gen] = [person]
+        return dict_gen
+
+    def get_person_without_generation(self):
+        """
+        Retourne la liste des personnes dont la génération n'est pas définie
+        :return:
+        """
+
+        # On boucle sur les personnes
+        persons_without_generation = []
+        for person in self.persons:
+            # Si la personne n'a pas de génération
+            if person.gen is None:
+                persons_without_generation.append(person)
+        return persons_without_generation
+
+    def print_gen(self):
+        # On affiche les générations de chacun
+        dict_gen = self.get_dict_gen()
+        for gen in dict_gen.keys():
+            print(f"Génération {gen} :")
+            for person in dict_gen[gen]:
+                print(f"    {person.name}")
+
+    def print_tree(self):
+        """
+        Affiche l'arbre généalogique sous la forme d'un graphique
+        :return:
+        """
+        # Créer un nouveau graphique
+        graph = gv.Graph(format='png')
+
+        # Ajouter un titre en haut du graphique
+        graph.attr(label=f'Arbre généalogique de {self.racine.name}', labelloc='t', labeljust='c', fontsize='20', fontcolor='blue')
+
+        # On détermine la génération des personnes de l'arbre
+
+        # Créer un dictionnaire contenant la profondeur = génération de chaque personne par parcours de graphe
+        dict_successeurs = {}
+        # On boucle sur toutes les personnes et on constitue le dictionnaire
+        for person in self.persons:
+            # On regarde s'il a des successeurs, i.e. des enfants
+            if len(person.children) > 0:
+                # On ajoute la personne dans le dictionnaire avec comme valeur la liste des enfants
+                dict_successeurs[person] = person.children
+
+        # On définit la génération pour chaque personne du graphe
+        # Pour la racine, on définit la génération à 0
+        self.racine.gen = 0
+        # On définit la génération pour tous les parents de manière récursive
+        define_parents_generation(self.racine, 1)
+
+        self.print_gen()
+
+        # On trace le graph
+        # On boucle sur toutes les personnes par génération et on ajoute les noeuds
+        dict_gen = self.get_dict_gen()
+        couples_edges_added = [] # liste des couples dont l'arête a déjà été ajoutée
+        child_edges_added = [] # liste des enfants dont l'arête a déjà été ajoutée avec leur parent
+
+        n_generations = len(dict_gen.keys())
+
+        for gen in range(n_generations):
+            # On ajoute les noeuds
+            for person in dict_gen[gen]:
+                # Ajouter un noeud pour chaque personne
+                # Ajout du noeud de la personne avec ses dates de naissance et de mort
+                color = "black"
+                # Pour la racine, on met en rouge
+                if person == self.racine:
+                    color = "red"
+
+                if person.deathdate is not None:
+                    graph.node(person.name,label=person.name + "\n" + format_str_date(person.birthdate) + " - " + format_str_date(person.deathdate) + "†", color = color, shape="box")
+                else:  # Si la personne est toujours en vie
+                    graph.node(person.name, label=person.name + "\n" + format_str_date(person.birthdate) + " - ", color = color, shape="box")
+
+                # Ajout des arêtes pour les couples en rose entre les nœuds de mariage et les personnes mariées
+                if person.spouse is not None :
+                    couple_name = person.get_couple_names()
+                    if couple_name not in couples_edges_added:
+                        # Création du noeud de mariage
+                        graph.node(couple_name, label="♥ " + format_str_date(person.wedding_date) + " ♥", shape="diamond", color="pink")
+                        # Ajout des arêtes entre le noeud de mariage et les personnes du couple
+                        graph.edge(person.name, couple_name, color="pink", splines="curved")
+                        graph.edge(person.spouse.name, couple_name, color="pink", splines="curved")
+                        couples_edges_added.append(couple_name)
+
+                # Ajouter une arête pour chaque enfant
+                for child in person.children:
+                    if child not in child_edges_added:
+                        graph.edge(couple_name, child.name, splines="curved")
+                        child_edges_added.append(child)
+
+
+        # Afficher le graphique
+        graph.render('tree', view=True)
+
+
+
+
+
+
+def define_parents_generation(enfant,generation_depuis_racine):
+    """
+    Définit la génération des parents d'un enfant de manière récursive
+    :param enfant:
+    :param generation_depuis_racine:
+    :return:
+    """
+
+    # Tant qu'il y a des parents (cas d'arrêt)
+    if len(enfant.parents) > 0:
+        # On définit la génération des parents
+        for parent in enfant.parents:
+            parent.gen = generation_depuis_racine
+
+            #On complète pour les frères et soeurs qui n'auraient pas de génération définie
+            for child in parent.children:
+                if child.gen is None:
+                    child.gen = generation_depuis_racine - 1
+
+        # On appelle la fonction pour les parents
+        for parent in enfant.parents:
+            define_parents_generation(parent, generation_depuis_racine + 1)
+
+
+
+
+
+
+
 
 
 

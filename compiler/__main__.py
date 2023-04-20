@@ -8,7 +8,7 @@ import p4rser
 
 if __name__ == "__main__":
     lexer = Lexer()
-    filename = "../examples/test_antoine.txt"
+    filename = "../examples/test2.txt"
     with open(filename) as file:
         content = file.readlines()
 
