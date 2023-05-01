@@ -8,7 +8,7 @@ import p4rser
 
 if __name__ == "__main__":
     lexer = Lexer()
-    filename = "../examples/test2.txt"
+    filename = "../examples/test.txt"
     with open(filename) as file:
         content = file.readlines()
 
@@ -16,8 +16,13 @@ if __name__ == "__main__":
     print(Lexems)
     p4rser = Parser(Lexems)
 
-    ftree = p4rser.parse()
-    #print_frise(ftree)
+    ftree, ast = p4rser.parse()
+
+    # Affichage de l'arbre généalogique et de l'AST
+    ftree.print_frise()
+    ftree.print_tree()
+
+    ast.show_AST()
 
 
 
