@@ -10,24 +10,42 @@ def format_str_date(date):
         return date.strftime("%d/%m/%Y")
 
 class FamilyTree:
+    """
+    Classe représentant un arbre généalogique
+    """
     def __init__(self):
+        """
+        Initialisation d'un arbre généalogique
+        """
         self.persons = []
         self.racine = None
 
     def get_person(self, name):
+        """
+        Retourne la personne dont le nom est passé en paramètre
+        :param name:
+        :return:
+        """
         for person in self.persons:
             if person.name == name:
                 return person
         return None
 
     def __str__(self):
-        print("Arbre de qualité")
+        """
+        Retourne une description de l'arbre généalogique
+        :return:
+        """
         desc = ""
         for person in self.persons:
             desc += str(person) + "\n"
         return desc
 
     def print_frise(self):
+        """
+        Affiche la frise chronologique correspondante à l'arbre
+        :return:
+        """
         # Lister tous les évènements
         events = {}
         for person in self.persons:
@@ -117,6 +135,10 @@ class FamilyTree:
         return persons_without_generation
 
     def print_gen(self):
+        """
+        Affiche les générations de chacun
+        :return:
+        """
         # On affiche les générations de chacun
         dict_gen = self.get_dict_gen()
         for gen in dict_gen.keys():
@@ -156,7 +178,7 @@ class FamilyTree:
         # On définit la génération pour tous les parents de manière récursive
         define_parents_generation(self.racine, 1)
 
-        self.print_gen()
+        #self.print_gen() A décommenter pour afficher les générations de chacun
 
         # On trace le graph
         # On boucle sur toutes les personnes par génération et on ajoute les noeuds

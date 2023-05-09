@@ -18,10 +18,9 @@ if __name__ == "__main__":
 
     ftree, ast = p4rser.parse()
 
-    # Affichage de l'arbre généalogique et de l'AST
+    # Affichage de la frise, de l'arbre généalogique et de l'AST
     ftree.print_frise()
     ftree.print_tree()
-
     ast.show_AST()
 
 

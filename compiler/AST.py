@@ -69,13 +69,3 @@ class AST:
 
     def show_AST(self):
         self.graph.render('test-output/round-table.gv', view=True)
-"""
-a = AST()
-a.def_declaration('Jean','01/01/2000',racine=True)
-a.def_declaration('Marie','01/01/2000',racine=False,ddate='01/01/2100')
-a.def_marital_link('Jean','01/01/2000','Marie','01/01/2000')
-a.def_declaration('Pierre','01/01/2000',racine=False,ddate='01/01/2100')
-a.def_familial_link('Jean','01/01/2000','Pierre','01/01/2000')
-
-a.show_AST()
-"""

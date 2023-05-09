@@ -1,6 +1,11 @@
 from datetime import datetime
 
 def format_str_date(date):
+    """
+    receive a date in datetime format and return a string
+    :param date:
+    :return:
+    """
     # receive a date in datetime format and return a string
     # Condition to check if the date is not None
     if date is None:
@@ -10,6 +15,10 @@ def format_str_date(date):
 
 class Person:
     def __init__(self, f_tree, identifier, bdate, ddate):
+        """
+        Initialisation d'une personne à partir de l'arbre généalogique auquel elle appartient,
+        de son nom, de sa date de naissance et, éventuellement, de sa date de décès
+        """
         self.name = identifier
         # enregistrer la date de naissance au format datetime
         if bdate is not None:
@@ -27,6 +36,10 @@ class Person:
         f_tree.persons.append(self)
 
     def __str__(self):
+        """
+        Retourne une description de la personne
+        :return:
+        """
         desc = str(f"{self.name} né le {format_str_date(self.birthdate)}")
         if not self.deathdate is None:
             desc += str(f" mort le {format_str_date(self.deathdate)}")
@@ -63,6 +76,12 @@ class Person:
             return str(self.spouse.name + self.name)
 
     def define_mariage_link(self, spouse, wdate):
+        """
+        Définit le lien de mariage entre deux personnes
+        :param spouse:
+        :param wdate:
+        :return:
+        """
         self.spouse = spouse
         spouse.spouse = self
         # On met à jour les dates de mariage
@@ -72,6 +91,11 @@ class Person:
         # Sinon, pas besoin, par défaut None lors de l'initialisation
 
     def define_familial_link(self, child):
+        """
+        Définit le lien familial (de filiation entre la personne self et l'enfant child)
+        :param child:
+        :return:
+        """
         self.children.append(child)
         if self.spouse is not None:
             self.spouse.children.append(child)
